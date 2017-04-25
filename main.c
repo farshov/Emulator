@@ -67,7 +67,6 @@ int main(int argc, char * argv[])
     }
     load_file(input);
     fclose(input);
-    //printf("HAS_SS  =  %d;HAS_DD   =   %d;HAS_SS | HAS_DD   =    %d\n", HAS_SS, HAS_DD, HAS_SS | HAS_DD);
     run_programme(0x0200, 0x000c);
     return 0;
 }
@@ -113,10 +112,7 @@ struct SSDD get_mr(word param, word cur)
     if(param & HAS_SS)
     {
         n = (cur >> 6) & 7;
-        //printf("  n   =   %d ", n);
-        //printf("\n param    %d\n", param);
         mode = (cur >> 9) & 7;
-        //printf("  mode   =   %d ", mode);
         switch(mode)
         {
             case 0  :     //R1                  //подумать над проблемой реализации
@@ -136,7 +132,7 @@ struct SSDD get_mr(word param, word cur)
                     reg[PC] += 2;
                     adress = reg[PC];
                     res.ss.a = n;
-                    res.ss.val = mem[adress];
+                    res.ss.val = w_read(adress);
                     reg[PC] += 2;
                     printf("#%d ", res.ss.val);
                 }
@@ -151,7 +147,6 @@ struct SSDD get_mr(word param, word cur)
             
         }
     }
-    //printf("mode  :   %d\n", mode);
     if(param & HAS_DD)
     {
         n = cur & 7;
@@ -252,15 +247,15 @@ void do_halt()
     exit(0);
 }
 
-void do_mov()
+void do_mov(struct SSDD res)
 {
-    //dd = ss;
-    //w_write(dd.a, ss.val);
+    reg[res.dd.a] = res.ss.val;
 }
 
-void do_add()
+void do_add(struct SSDD res)
 {
-    //w_write(dd.a, dd.val + ss.val);
+    reg[res.dd.a] = res.dd.val + res.ss.val;
+    printf("\nAdd result: %d", reg[res.dd.a]);
 }
 
 void do_unknown()
